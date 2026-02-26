@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #0693e3;
+}
+
+.form-input {
+  display: block;
+  width: 200px;
+  border: none;
+  padding: 10px;
+  border-radius: 5px 0 0 5px;
+}
+
+.form-btn {
+  display: block;
+  width: 100px;
+  border: none;
+  padding: 10px;
+  background: rgb(217, 216, 216);
+  border-radius: 0 5px 5px 0;
+}
