@@ -7,28 +7,28 @@ const searchForm = document.querySelector('#search-form');
 const gallary = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 let page = 1;
+let inputValue;
 
 searchForm.addEventListener('submit', handlerForm);
 
 function handlerForm(e) {
   e.preventDefault();
-  loadMoreBtn.classList.add('hidden');
   gallary.innerHTML = '';
-  const inputValue = searchForm[0].value;
-  getPicture(inputValue).then(resp => {
+  page = 1;
+  loadMoreBtn.classList.add('hidden');
+  inputValue = searchForm[0].value;
+  getPicture(inputValue, page).then(resp => {
     const totalPictures = resp.totalHits;
     if (totalPictures > page * 40) {
-      page++;
       loadMoreBtn.classList.remove('hidden');
     } else {
       loadMoreBtn.classList.add('hidden');
     }
-    const pictures = createMarkup(resp.hits);
-    gallary.insertAdjacentHTML('beforeend', pictures);
+    gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
   });
 }
 
-async function getPicture(value) {
+async function getPicture(value, page) {
   try {
     const response = await axios.get(BASE_URL, {
       params: {
@@ -84,4 +84,17 @@ function createMarkup(arr) {
     .join('');
 }
 
-loadMoreBtn.addEventListener('click', handlerForm);
+loadMoreBtn.addEventListener('click', loadMore);
+
+function loadMore() {
+  page++;
+  getPicture(inputValue, page).then(resp => {
+    const totalPictures = resp.totalHits;
+    if (totalPictures > page * 40) {
+      loadMoreBtn.classList.remove('hidden');
+    } else {
+      loadMoreBtn.classList.add('hidden');
+    }
+    gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+  });
+}
