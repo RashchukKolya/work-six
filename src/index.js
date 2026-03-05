@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Notiflix from 'notiflix';
+// import Notiflix from 'notiflix';
 
 const API_KEY = '54530633-d87da1398ffb7ca41953b047e';
 const BASE_URL = 'https://pixabay.com/api/';
