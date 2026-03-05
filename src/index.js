@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Notiflix from 'notiflix';
 
 const API_KEY = '54530633-d87da1398ffb7ca41953b047e';
 const BASE_URL = 'https://pixabay.com/api/';
@@ -6,6 +7,15 @@ const BASE_URL = 'https://pixabay.com/api/';
 const searchForm = document.querySelector('#search-form');
 const gallary = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
+const target = document.querySelector('.js-guard');
+
+let options = {
+  root: null,
+  rootMargin: '400px',
+  threshold: 1,
+};
+
+let observer = new IntersectionObserver(loadMore, options);
 let page = 1;
 let inputValue;
 
@@ -15,16 +25,17 @@ function handlerForm(e) {
   e.preventDefault();
   gallary.innerHTML = '';
   page = 1;
-  loadMoreBtn.classList.add('hidden');
+  // loadMoreBtn.classList.add('hidden');
   inputValue = searchForm[0].value;
   getPicture(inputValue, page).then(resp => {
-    const totalPictures = resp.totalHits;
-    if (totalPictures > page * 40) {
-      loadMoreBtn.classList.remove('hidden');
-    } else {
-      loadMoreBtn.classList.add('hidden');
-    }
+    // const totalPictures = resp.totalHits;
+    // if (totalPictures > page * 40) {
+    //   loadMoreBtn.classList.remove('hidden');
+    // } else {
+    //   loadMoreBtn.classList.add('hidden');
+    // }
     gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+    observer.observe(target);
   });
 }
 
@@ -84,17 +95,28 @@ function createMarkup(arr) {
     .join('');
 }
 
-loadMoreBtn.addEventListener('click', loadMore);
+// loadMoreBtn.addEventListener('click', loadMore);
 
-function loadMore() {
-  page++;
-  getPicture(inputValue, page).then(resp => {
-    const totalPictures = resp.totalHits;
-    if (totalPictures > page * 40) {
-      loadMoreBtn.classList.remove('hidden');
-    } else {
-      loadMoreBtn.classList.add('hidden');
+function loadMore(entries, observer) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      page++;
+      getPicture(inputValue, page).then(resp => {
+        const totalPictures = resp.totalHits;
+        gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+        if (totalPictures <= page * 40) {
+          observer.unobserve(target);
+        }
+      });
     }
-    gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
   });
+  // page++;
+  // getPicture(inputValue, page).then(resp => {
+  //   // if (totalPictures > page * 40) {
+  //   //   loadMoreBtn.classList.remove('hidden');
+  //   // } else {
+  //   //   loadMoreBtn.classList.add('hidden');
+  //   // }
+  //   gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+  // });
 }
