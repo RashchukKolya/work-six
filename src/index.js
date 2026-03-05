@@ -6,7 +6,7 @@ const BASE_URL = 'https://pixabay.com/api/';
 
 const searchForm = document.querySelector('#search-form');
 const gallary = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
+// const loadMoreBtn = document.querySelector('.load-more');git
 const target = document.querySelector('.js-guard');
 
 let options = {
