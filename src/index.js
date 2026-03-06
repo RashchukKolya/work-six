@@ -1,13 +1,20 @@
 import axios from 'axios';
 import { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const API_KEY = '54530633-d87da1398ffb7ca41953b047e';
 const BASE_URL = 'https://pixabay.com/api/';
 
 const searchForm = document.querySelector('#search-form');
-const gallary = document.querySelector('.gallery');
+const picturesContainer = document.querySelector('.gallery');
 // const loadMoreBtn = document.querySelector('.load-more');git
 const target = document.querySelector('.js-guard');
+
+let gallary = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 let options = {
   root: null,
@@ -32,7 +39,7 @@ searchForm.addEventListener('submit', handlerForm);
 
 function handlerForm(e) {
   e.preventDefault();
-  gallary.innerHTML = '';
+  picturesContainer.innerHTML = '';
   page = 1;
   // loadMoreBtn.classList.add('hidden');
   inputValue = searchForm[0].value;
@@ -40,8 +47,12 @@ function handlerForm(e) {
     .then(resp => {
       if (resp.totalHits > 0) {
         Notify.success(`Hooray! We found ${resp.totalHits} images))`);
-        gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+        picturesContainer.insertAdjacentHTML(
+          'beforeend',
+          createMarkup(resp.hits)
+        );
         observer.observe(target);
+        gallary.refresh();
       } else {
         Notify.warning(
           'Sorry, there are no images matching your search query. Please try again.'
@@ -91,7 +102,7 @@ function createMarkup(arr) {
         comments,
         downloads,
       }) => `
-        <div class="photo-card">
+        <a class="photo-card" href="${largeImageURL}">
           <img class="photo-img" src="${webformatURL}" alt="${tags}" loading="${largeImageURL}" />
           <div class="info">
             <p class="info-item">
@@ -111,7 +122,7 @@ function createMarkup(arr) {
               ${downloads}
             </p>
           </div>
-        </div>`
+        </a>`
     )
     .join('');
 }
@@ -124,7 +135,11 @@ function loadMore(entries, observer) {
       page++;
       getPicture(inputValue, page).then(resp => {
         const totalPictures = resp.totalHits;
-        gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+        picturesContainer.insertAdjacentHTML(
+          'beforeend',
+          createMarkup(resp.hits)
+        );
+        gallary.refresh();
         if (totalPictures <= page * 40) {
           observer.unobserve(target);
           Notify.info(
@@ -141,6 +156,6 @@ function loadMore(entries, observer) {
   //   // } else {
   //   //   loadMoreBtn.classList.add('hidden');
   //   // }
-  //   gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+  //   picturesContainer.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
   // });
 }

@@ -37,6 +37,8 @@ body {
 .photo-card {
   display: block;
   height: auto;
+  text-decoration: none;
+  color: inherit;
 }
 
 .photo-img {
