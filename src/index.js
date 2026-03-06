@@ -1,5 +1,5 @@
 import axios from 'axios';
-// import Notiflix from 'notiflix';
+import { Notify } from 'notiflix';
 
 const API_KEY = '54530633-d87da1398ffb7ca41953b047e';
 const BASE_URL = 'https://pixabay.com/api/';
@@ -19,6 +19,15 @@ let observer = new IntersectionObserver(loadMore, options);
 let page = 1;
 let inputValue;
 
+Notify.init({
+  width: '280px',
+  position: 'right-top',
+  distance: '10px',
+  timeout: 2000,
+  pauseOnHover: true,
+  ID: 'NotiflixNotify',
+});
+
 searchForm.addEventListener('submit', handlerForm);
 
 function handlerForm(e) {
@@ -27,16 +36,28 @@ function handlerForm(e) {
   page = 1;
   // loadMoreBtn.classList.add('hidden');
   inputValue = searchForm[0].value;
-  getPicture(inputValue, page).then(resp => {
-    // const totalPictures = resp.totalHits;
-    // if (totalPictures > page * 40) {
-    //   loadMoreBtn.classList.remove('hidden');
-    // } else {
-    //   loadMoreBtn.classList.add('hidden');
-    // }
-    gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
-    observer.observe(target);
-  });
+  getPicture(inputValue, page)
+    .then(resp => {
+      if (resp.totalHits > 0) {
+        Notify.success(`Hooray! We found ${resp.totalHits} images))`);
+        gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
+        observer.observe(target);
+      } else {
+        Notify.warning(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      }
+      // const totalPictures = resp.totalHits;
+      // if (totalPictures > page * 40) {
+      //   loadMoreBtn.classList.remove('hidden');
+      // } else {
+      //   loadMoreBtn.classList.add('hidden');
+      // }
+    })
+    .catch(err => {
+      Notify.failure('Something went wrong. Try again later');
+      console.error(err);
+    });
 }
 
 async function getPicture(value, page) {
@@ -106,6 +127,9 @@ function loadMore(entries, observer) {
         gallary.insertAdjacentHTML('beforeend', createMarkup(resp.hits));
         if (totalPictures <= page * 40) {
           observer.unobserve(target);
+          Notify.info(
+            "We're sorry, but you've reached the end of search results."
+          );
         }
       });
     }
